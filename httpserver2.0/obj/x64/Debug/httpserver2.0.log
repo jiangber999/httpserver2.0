@@ -1,0 +1,24 @@
+﻿  正在清理远程项目目录
+  正在验证源
+  正在将源远程复制到“192.168.88.215”
+  正在验证体系结构
+  正在验证体系结构
+  正在启动远程生成
+  正在编译源:
+  Buffer.c
+  Channel.c
+  ChannelMap.c
+  EpollDispatcher.c
+  EventLoop.c
+  HttpRequest.c
+  HttpResponse.c
+  main.c
+  PollDispatcher.c
+  SelectDispatcher.c
+  TcpConnection.c
+  TcpServer.c
+  ThreadPool.c
+  WorkerThread.c
+  正在链接对象
+bash : error : 第 0 行:cd: /home/dog/projects/httpserver2.0/code/visual: 没有那个文件或目录
+  httpserver2.0.vcxproj -> D:\code\visual studio code\httpserver2.0\httpserver2.0\bin\x64\Debug\httpserver2.0.out

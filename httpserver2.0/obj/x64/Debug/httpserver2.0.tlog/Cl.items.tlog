@@ -1,0 +1,14 @@
+D:\code\visual studio code\httpserver2.0\httpserver2.0\Buffer.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\Buffer.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\Channel.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\Channel.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\ChannelMap.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\ChannelMap.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\EpollDispatcher.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\EpollDispatcher.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\EventLoop.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\EventLoop.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\HttpRequest.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\HttpRequest.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\HttpResponse.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\HttpResponse.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\main.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\main.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\PollDispatcher.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\PollDispatcher.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\SelectDispatcher.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\SelectDispatcher.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\TcpConnection.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\TcpConnection.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\TcpServer.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\TcpServer.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\ThreadPool.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\ThreadPool.o
+D:\code\visual studio code\httpserver2.0\httpserver2.0\WorkerThread.c;D:\code\visual studio code\httpserver2.0\httpserver2.0\obj\x64\Debug\WorkerThread.o
