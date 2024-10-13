@@ -16,4 +16,4 @@ struct TcpServer* tcpserverInit(unsigned int port,int threadNum);
 //初始化监听
 struct Listener* listenerInit(unsigned int port);
 //启动服务器
-void tcpServerRun(struct TcpServer*server);
+void tcpServerRun(struct TcpServer* server);

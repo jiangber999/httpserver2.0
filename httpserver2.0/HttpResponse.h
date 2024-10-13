@@ -1,5 +1,6 @@
 #pragma once
 #include "Buffer.h"
+#include <string.h>
 enum HttpStatusCode{
 	Unknown,
 	OK=200,			//处理成功

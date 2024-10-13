@@ -3,6 +3,7 @@
 #include <sys/epoll.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "Log.h"
 //解释不需要该文件的.h文件：由于不需要这些函数为全局函数，只需要把Dispatcher实例的函数指针指向这些函数即可，我们调用的是指针，而不是API接口
 //设置为静态函数，只有当前文件可以使用
 #define Max 520
@@ -33,13 +34,14 @@ static int epollCtl(struct Channel* channel, struct EventLoop* evLoop, int opt) 
 	struct epoll_event ev ;
 	ev.data.fd = channel->fd;
 	//no same
+	int events = 0;
 	if (channel->events & ReadEvent) {
-		ev.events |= EPOLLIN;
+		events |= EPOLLIN;
 	}
 	if (channel->events & WriteEvent) {
-		ev.events |= EPOLLOUT;
+		events |= EPOLLOUT;
 	}
-
+	ev.events = events;
 	int ret = epoll_ctl(data->epfd, opt, channel->fd, &ev);
 
 	return ret;
@@ -59,7 +61,6 @@ static void* epollInit() {
 }
 
 static int epollAdd(struct Channel* channel, struct EventLoop* evLoop) {
-	
 	int ret = epollCtl(channel, evLoop, EPOLL_CTL_ADD);
 	if (ret == -1) {
 		perror("epollAdd");
@@ -87,11 +88,11 @@ static int epollModify(struct Channel* channel, struct EventLoop* evLoop) {
 }
 static int epollDispatch(struct EventLoop* evLoop, int timeout) {
 	struct EpollData* data = (struct EpollData*)evLoop->DispatcherData;
-	int ret=epoll_wait(data->epfd, data->events, sizeof(data->events), timeout * 1000);
+	int ret=epoll_wait(data->epfd, data->events, Max, timeout * 1000);
 	int i = 0;
 	for (i = 0; i < ret; i++) {
 		int events = data->events[i].events;
-		int fd = data->events[i].data.fd, ReadEvent;
+		int fd = data->events[i].data.fd;
 		if (events & EPOLLERR || events & EPOLLHUP) {
 			//表明有连接出现异常，需要关闭文件描述符
 			//epollRemove()

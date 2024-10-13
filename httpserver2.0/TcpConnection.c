@@ -1,5 +1,6 @@
 #include "TcpConnection.h"
 #include <stdlib.h>
+#include "Log.h"
 int processRead(void *arg) {
 	struct TcpConnection* conn = (struct TcpConnection*)arg;
 	int count=bufferSocketRead(conn->readBuf, conn->channel->fd);
@@ -14,10 +15,17 @@ int processRead(void *arg) {
 		bool flag = parseHttpRequest(conn->request, conn->readBuf, conn->response, conn->writeBuf, conn->channel->fd);
 		if (!flag) {
 		//解析失败，回复一个简单的html
-		char* errMsg = "http/1.1 400 Bad Request\r\n\r\n";
+		char* errMsg = "Http/1.1 400 Bad Request\r\n\r\n";
 		bufferAppendString(conn->writeBuf, errMsg);
 		//断开连接
 		}
+
+	}
+	else {
+#ifdef MSG_SEND_AUTO
+		//断开连接
+		eventLoopAddTask(conn->evLoop, conn->channel, DELETE);
+#endif
 
 	}
 
@@ -53,11 +61,11 @@ struct TcpConnection* TcpConnectionInit(struct EventLoop*evLoop,int fd)
 	conn->readBuf=bufferInit(10240);
 	conn->writeBuf = bufferInit(10240);
 	conn->evLoop = evLoop;
-	conn->channel = channelInit(fd, ReadEvent, processRead, processwrite,tcpConnectionDestroy,conn);
 	sprintf(conn->name, "connection-%d", fd);
-	eventLoopAddTask(evLoop, conn->channel, ADD);
 	conn->request = httpRequestInit();
 	conn->response = httpResponseInit();
+	conn->channel = channelInit(fd, ReadEvent, processRead, processwrite,tcpConnectionDestroy,conn);
+	eventLoopAddTask(conn->evLoop, conn->channel, ADD);
 	return conn;
 }
 
@@ -76,5 +84,6 @@ int tcpConnectionDestroy(void*arg)
 		}
 		
 	}
+	printf("over connection\n");
 	return 0;
 }

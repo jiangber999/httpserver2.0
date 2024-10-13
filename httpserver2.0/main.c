@@ -4,6 +4,7 @@
 #include "TcpServer.h"
 #include <arpa/inet.h>
 #include <string.h>
+#include "Log.h"
 int main(int argc,char*argv[]) {
 	//if (argc < 3) {
 	//	printf("./a.out port path\n");

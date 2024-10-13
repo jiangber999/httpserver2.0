@@ -4,13 +4,16 @@
 #include <arpa/inet.h>
 #include "TcpConnection.h"
 #include <stdlib.h>
+#include "Log.h"
 struct TcpServer* tcpserverInit(unsigned int port, int threadNum)
 {
+	
 	struct TcpServer* tcp = (struct TcpServer*)malloc(sizeof(struct TcpServer));
+	tcp->listener = listenerInit(port);
 	tcp->mainLoop = EventLoopInit();
 	tcp->threadNum = threadNum;
-	tcp->pool = threadPoolInit(tcp->mainLoop, tcp->threadNum);
-	tcp->listener = listenerInit(port);
+	tcp->pool = threadPoolInit(tcp->mainLoop,threadNum);
+	
 	return tcp;
 }
 
@@ -31,7 +34,7 @@ struct Listener* listenerInit(unsigned int port)
 	}
 	//绑定地址结构
 	struct sockaddr_in addr;
-	addr.sin_addr.s_addr = htonl(INADDR_ANY);//可以不转换 大端0和小端0是一样的
+	addr.sin_addr.s_addr = INADDR_ANY;//可以不转换 大端0和小端0是一样的
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 	ret = bind(lfd, (struct sockaddr*)&addr, sizeof(addr));
@@ -66,6 +69,7 @@ int acceptConnection(void*arg) {
 }
 void tcpServerRun(struct TcpServer* server)
 {
+	
 	//启动线程池;
 	threadPoolRun(server->pool);
 	//添加检测的任务

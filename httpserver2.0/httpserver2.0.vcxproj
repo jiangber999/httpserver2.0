@@ -91,7 +91,6 @@
     <ClCompile Include="WorkerThread.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\桌面\Log.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="Channel.h" />
     <ClInclude Include="ChannelMap.h" />
@@ -99,6 +98,7 @@
     <ClInclude Include="EventLoop.h" />
     <ClInclude Include="HttpResponse.h" />
     <ClInclude Include="HttpRequest.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="TcpConnection.h" />
     <ClInclude Include="TcpServer.h" />
     <ClInclude Include="ThreadPool.h" />

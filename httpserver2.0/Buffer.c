@@ -2,6 +2,7 @@
 #include <sys/uio.h>
 #include <unistd.h>
 #include <strings.h>
+#include "Log.h"
 struct Buffer* bufferInit(int size) {
 	struct Buffer* buffer = (struct Buffer*)malloc(sizeof(struct Buffer));
 	if (buffer != NULL) {
@@ -19,35 +20,35 @@ void bufferDestroy(struct Buffer* buffer) {
 		if (buffer->data != NULL) {
 			free(buffer->data);
 		}
-		free(buffer);
+		
 	}
+	free(buffer);
 }
 void bufferExtendRoom(struct Buffer* buffer, int size) {
 	//1.内存够用不需要扩容
-	if (bufferWriteableSize(buffer) > size) {
+	if (bufferWriteableSize(buffer) >= size) {
 		return;
 
 	}
 	//2.内存需要合并才够用-不需要扩容
 	//剩余可写的内存+已读的内存>size
-	else if ((buffer->writePos - bufferReadableSize(buffer)) + bufferWriteableSize(buffer) < size) {
+	else if (buffer->readPos+ bufferWriteableSize(buffer) >= size) {
 		//得到未读的内存大小
 		int readable = bufferReadableSize(buffer);
 		//移动内存
-		memcpy(buffer->data, &buffer->data[buffer->readPos], bufferReadableSize(buffer));
+		memcpy(buffer->data, buffer->data+buffer->readPos, readable);
 		//更新位置
 		buffer->readPos = 0;
 		buffer->writePos = readable;
 	}
 	//3.内存不够用-扩容
 	else {
-
 		char* temp = (char*)realloc(buffer->data, size + buffer->capacity);
 		if (temp == NULL) {
 			return;				//失败了
 		}
 		//扩展内存
-		memset(&buffer->data[buffer->capacity], 0, size);
+		memset(temp+buffer->capacity, 0, size);
 		buffer->data = temp;
 		buffer->capacity = buffer->capacity + size;
 	}
@@ -62,7 +63,7 @@ int bufferReadableSize(struct Buffer* buffer) {
 
 int bufferAppendData(struct Buffer* buffer, const char* data, int size)
 {
-	if (buffer == NULL || data == NULL || size < 0) {
+	if (buffer == NULL || data == NULL || size <= 0) {
 		return -1;
 	}
 	//扩容
@@ -96,16 +97,14 @@ int bufferSocketRead(struct Buffer* buffer, int fd)
 		perror("readv");
 		return -1;
 	}
-	else if(result<=bufferWriteableSize(buffer)){
+	else if(result<=writeable){
 		buffer->writePos += result;
 	}
-	else if(result>bufferWriteableSize(buffer)){
+	else {
 		buffer->writePos = buffer->capacity;
 		bufferAppendData(buffer, tmpbuf, result - writeable);
-		
 	} 
 	free(tmpbuf);
-
 
 	return result; 
 }
@@ -115,13 +114,18 @@ int bufferSendData(struct Buffer* buffer, int socket)
 	//判断有无数据
 	int readable = bufferReadableSize(buffer);
 	if (readable>0) {
-		int count = send(socket, buffer->data + buffer->readPos,readable ,0);
+		int count = send(socket, buffer->data + buffer->readPos,readable ,MSG_NOSIGNAL);
 		if (count) {
 			buffer->readPos += count;
-			usleep(1);
+			//usleep(1);
 		}
 		return count;
 	}
 
 	return 0;
+}
+char* bufferFindCRLF(struct Buffer* buffer)
+{
+	char* ptr = memmem(buffer->data + buffer->readPos, bufferReadableSize(buffer), "\r\n", 2);
+	return ptr;
 }

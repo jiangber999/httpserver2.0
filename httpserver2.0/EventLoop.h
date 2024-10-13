@@ -7,6 +7,7 @@
 extern struct Dispatcher EpollDispatch;
 extern struct Dispatcher PollDispatch;
 extern struct Dispatcher SelectDispatch;
+struct Dispatcher;
 //处理该节点中Channel的方式
 enum ElemType {
 	ADD,DELETE,MODIFY

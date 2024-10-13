@@ -22,6 +22,7 @@ int bufferReadableSize(struct Buffer* buffer);
 int bufferAppendData(struct Buffer*buffer,const char*data,int size);
 int bufferAppendString(struct Buffer*buffer,const char*data);
 int bufferSocketRead(struct Buffer* buffer, int fd);
-
+//读出请求行
+char* bufferFindCRLF(struct Buffer* buffer);
 //发送数据
 int bufferSendData(struct Buffer* buffer, int socket);

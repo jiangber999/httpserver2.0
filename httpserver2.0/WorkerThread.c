@@ -17,6 +17,7 @@ int workerThreadInit(struct WorkerThread* thread, int index)
 	 pthread_mutex_unlock(&thread->mutex);
 	 pthread_cond_signal(&thread->cond);
 	 eventLoopRun(thread->evLoop);
+	 return NULL;
 
  }
  void workerThreadRun(struct WorkerThread* thread)

@@ -4,7 +4,7 @@
 #include "Buffer.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
-#define MSG_SEND_AUTO		//控制两种发送数据的方式
+//#define MSG_SEND_AUTO		//控制两种发送数据的方式
 struct TcpConnection {
 	struct Buffer* readBuf;
 	struct Buffer* writeBuf;

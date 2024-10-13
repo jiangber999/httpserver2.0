@@ -40,8 +40,6 @@ void httpRequestAddHeader(struct HttpRequest*request,const char*key,const char*v
 const char* httpRequestGetHeader(struct HttpRequest* request, const char* key);
 //解析请求行
 bool parseHttpRequestLine(struct HttpRequest* request, struct Buffer* readBuf);
-//读出请求行
-char* bufferFindCRLF(struct Buffer*buffer);
 //解析请求头
 bool parseHttpRequestHeader(struct HttpRequest* request, struct Buffer* readBuf);
 //解析http请求协议

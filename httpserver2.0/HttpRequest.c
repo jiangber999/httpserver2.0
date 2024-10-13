@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include "TcpConnection.h"
 #include <ctype.h>
-
+#include "Log.h"
 #define HeaderSize 12
 struct HttpRequest* httpRequestInit()
 {
@@ -76,8 +76,8 @@ const char* httpRequestGetHeader(struct HttpRequest* request, const char* key) {
 char*  splitRequestLine(const char*start,const char*end,const char*sub,char**ptr) {
 	char* space=(char*)end;
 	if (sub != NULL) {
-		space = memmem(start, end-start, " ", 1);
-		assert(space);
+		space = memmem(start, end-start, sub, strlen(sub));
+		assert(space!=NULL);
 	}
 	int Lenth = space - start;
 	char*tmp = (char*)malloc(Lenth + 1);
@@ -98,9 +98,6 @@ bool parseHttpRequestLine(struct HttpRequest* request,struct Buffer* readBuf)
 		start = splitRequestLine(start, end, " ", &request->method);
 		start = splitRequestLine(start, end, " ", &request->url);
 		splitRequestLine(start, end, NULL, &request->version);
-
-
-
 
 		////get /xx/xx.txt http/1.1
 		////请求方式
@@ -136,12 +133,8 @@ bool parseHttpRequestLine(struct HttpRequest* request,struct Buffer* readBuf)
 	return false;
 }
 
-char* bufferFindCRLF(struct Buffer* buffer)
-{	
-	char *ptr=memmem(buffer->data+buffer->readPos,bufferReadableSize(buffer), "\r\n",2);
-	return ptr;
-}
-//该函数清理请求头中的一行
+
+//该函数处理请求头中的一行
 bool parseHttpRequestHeader(struct HttpRequest* request,struct Buffer* readBuf)
 {	char* end = bufferFindCRLF(readBuf);
 	if (end != NULL) {
@@ -167,9 +160,8 @@ bool parseHttpRequestHeader(struct HttpRequest* request,struct Buffer* readBuf)
 			//修改解析状态
 			//忽略post请求，按get请求处理
 			request->curState = ParseReqDone;
-
 		}
-		return false;
+		return true;
 	}
 	return false;
 }
@@ -188,7 +180,7 @@ bool parseHttpRequest(struct HttpRequest* request,struct  Buffer* readBuf,
 				break;
 			case ParseReqBody:
 				break;
-			case ParseReqDone:
+			default:
 				break;
 		}
 		if (!flag) {
@@ -208,22 +200,21 @@ bool parseHttpRequest(struct HttpRequest* request,struct  Buffer* readBuf,
 //处理基于get的http请求
 bool processHttpRequest(struct HttpRequest* request,struct HttpResponse*response)
 {
-	char temp[1024] = { 0 };
 	if (strcasecmp(request->method, "get") != 0) {
 
 		return -1;
 	}
 	//printf("yuan lai path = % s\n", path);
-	decodeMsg(request->url, temp);
+	decodeMsg(request->url, request->url);
 	//printf("path = % s\n", path);
 	//printf("method is %s,path is %s\n", method, path);
 	//处理客户端请求的静态资源文件 文件或目录
-	char* file = NULL;
+	char file[32] = {0};
 	if (strcmp(request->url, "/") == 0) {
-		file = "./";
+		strcpy(file ,"./");
 	}
 	else {
-		file = request->url + 1;
+		strcpy(file ,request->url + 1);
 	}
 	//获取文件属性
 	struct stat st;
@@ -233,10 +224,10 @@ bool processHttpRequest(struct HttpRequest* request,struct HttpResponse*response
 		//sendHeadMsg(cfd, 404, "Not found", getFileType(".html"), -1);
 		//sendFile(cfd, "404.html");
 		strcpy(response->fileName, "404.html");
-		strcpy(response->statusMsg, "Not found");
+		strcpy(response->statusMsg, "Not Found");
 		response->statusCode = NotFound;
 		//响应头
-		httpResponseAddHeader(response, "Content-type", getFileType("404.html"));
+		httpResponseAddHeader(response, "Content-type", getFileType(".html"));
 		response->sendDataFunc=sendFile;
 
 		return 0;
@@ -257,10 +248,10 @@ bool processHttpRequest(struct HttpRequest* request,struct HttpResponse*response
 		//sendHeadMsg(cfd, 200, "OK", getFileType(file), st.st_size);
 		//sendFile(cfd, file);
 		//响应头
-		char temp[12];
-		sprintf(temp,"%ld", st.st_size);
+		char tmp[12] = {0};
+		sprintf(tmp,"%ld", st.st_size);
 		httpResponseAddHeader(response, "Content-type", getFileType(file));
-		httpResponseAddHeader(response, "Content-length", temp);
+		httpResponseAddHeader(response, "Content-length", tmp);
 		response->sendDataFunc = sendFile;
 
 	}
@@ -280,7 +271,6 @@ int HexToDec(char c) {
 	return 0;
 }
 void decodeMsg(char* to, char* from) {
-	printf("decode is %s\n", to);
 	for (; *from != '\0'; from++, to++) {
 		if (from[0] == '%' && isxdigit(from[1]) && isxdigit(from[2])) {
 			*to = HexToDec(from[1]) * 16 + HexToDec(from[2]);
@@ -291,6 +281,7 @@ void decodeMsg(char* to, char* from) {
 			*to = *from;
 		}
 	}
+	*to = '\0';
 
 }
 void sendFile(const char* filename, struct Buffer* sendBuf, int cfd)
@@ -311,15 +302,14 @@ void sendFile(const char* filename, struct Buffer* sendBuf, int cfd)
 #ifndef MSG_SEND_AUTO
 			bufferSendData(sendBuf, cfd);
 #endif 
-			usleep(10);				//防止客户端处理不过来数据
+			//usleep(10);				//防止客户端处理不过来数据
 		}
 		else if (len == 0) {
 			break;
-
 		}
 		else {
 			close(fd);
-			perror("read error");
+			perror("read");
 			break;
 		}
 	}
@@ -382,7 +372,6 @@ void sendDir(const char* filename, struct Buffer* sendBuf, int cfd)
 		//send(cfd, buf, strlen(buf), 0);
 		memset(buf, 0, sizeof(buf));
 		free(namelist[i]);		//释放单个的内存
-
 	}
 	sprintf(buf, "</table></body></html>");
 	bufferAppendString(sendBuf, buf);
